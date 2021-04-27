@@ -38,11 +38,11 @@ program Juego;
 
     Monitor Tablero;
         var cantidadJugadoresEnTablero, cantidadJugadoresEsperandoEntrar : integer;
-         reordenarTablero, jugador : conditional;
+         llamarJefePAraColocarCartas, jugador : conditional;
         
         procedure reordenarTablero(carta in : {JUGAR, ESPERAR});
         begin
-            reordenarTablero.wait();
+            llamarJefePAraColocarCartas.wait();
             pensar_reordenamiento(), 
             reordenar_tablero();
             jugador.signal();
@@ -65,7 +65,7 @@ program Juego;
         begin
             cantidadJugadoresEnTablero--;
             if (cantidadJugadoresEnTablero == 0) then
-                reordenarTablero.signal();
+                llamarJefePAraColocarCartas.signal();
             end;
         end;
 
@@ -76,9 +76,9 @@ program Juego;
 
     Monitor Mazo;
         var cantidadCartasEnMazo : integer;
-            jugador, reordenarCartas : condition;
+            jugador, colocarCartas : condition;
 
-        procedure reordenarCartas();
+        procedure colocarCartas();
             var carta : {JUGAR, ESPERA};
         begin
             for i := cantidadCartasEnMazo to 10 do
@@ -87,14 +87,14 @@ program Juego;
                 colocar_carta_en_mazo(carta);
                 cantidadCartasEnMazo++;
             end;
-            reordenarCartas.wait();
+            colocarCartas.wait();
             jugador.signal();
         end;
 
         procedure sacarCarta(carta out : Carta);
         begin
             if (cantidadCartasEnMazo == 0) then
-                reordenarCartas.signal();
+                colocarCartas.signal();
                 jugador.wait();
             end;
             sacar_carta_de_mazo(carta);
@@ -126,7 +126,7 @@ program Juego;
     procedure jefeDeMazo(params);
     begin
         while(true) begin
-            Mazo.reordenarCartas();
+            Mazo.colocarCartas();
         end;
     end;
 
