@@ -11,29 +11,29 @@
 program ej1Mailbox
 
 var 
-    confirmarRecepcion : mailbox of NIL
-    estoyListo : mailbox of NIL
-    tmensaje : mailbox of TMensaje;
+    confirmarRecepcion : mailbox of NIL //infinito
+    estoyListo : mailbox of NIL //infinito
+    tmensaje : mailbox of TMensaje; //infinito
 
 procedure recibir_sinc_mult(mensaje: out TMensaje)
 begin
-    send(estoyListo);
+    send(estoyListo); //no bloqueante
     mensaje := recv(tmensaje, mensaje);
-    send(confirmarRecepcion);
+    send(confirmarRecepcion); //no bloqueante
 end;
 
 
 procedure enviar_sinc_mult(cant_destinos: in integer, mensaje: in TMensaje);
 begin
-    recev(mutex)//P
+    recev(mutex)//P   -- //bloqueante
     for i := 0 to cant_destinos do
-        rcv(estoyListo);
+        rcv(estoyListo); //bloqueante
 
     for i := 0 to cant_destinos do
-        send(tmensaje, mensaje);
+        send(tmensaje, mensaje); //no bloqueante
 
     for i := 0 to cant_destinos do
-        rcv(confirmarRecepcion);
+        rcv(confirmarRecepcion); //bloqueante
     send(mutex)//P
 end;
 '
